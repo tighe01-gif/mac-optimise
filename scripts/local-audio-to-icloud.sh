@@ -165,4 +165,9 @@ fi
 echo "Manifest: ${MANIFEST}"
 echo "=== done ==="
 
-[[ "$APPLY" -eq 0 && ${#FOUND[@]} -gt 0 ]] && exit 2
+if [[ "$APPLY" -eq 0 && ${#FOUND[@]} -gt 0 ]]; then
+  exit 2
+fi
+if [[ "$APPLY" -eq 1 && "$failed" -gt 0 ]]; then
+  exit 2
+fi

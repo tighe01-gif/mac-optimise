@@ -43,9 +43,10 @@ mkdir -p "$REPORT_DIR"
 PASS=0
 WARN=0
 FAIL=0
+declare -a WARN_MSGS=()
 
 pass() { green "PASS: $*"; PASS=$((PASS + 1)); }
-warn() { yellow "WARN: $*"; WARN=$((WARN + 1)); }
+warn() { yellow "WARN: $*"; WARN_MSGS+=("$*"); WARN=$((WARN + 1)); }
 fail() { red "FAIL: $*"; FAIL=$((FAIL + 1)); }
 
 echo "=== Mac thin client optimise $(timestamp) ==="
@@ -209,6 +210,11 @@ PY
 
 echo ""
 echo "--- Summary: ${PASS} pass, ${WARN} warn, ${FAIL} fail ---"
+if [[ ${#WARN_MSGS[@]} -gt 0 ]]; then
+  yellow "Warnings:"
+  for msg in "${WARN_MSGS[@]}"; do echo "  • ${msg}"; done
+  echo ""
+fi
 if [[ "$FAIL" -gt 0 ]]; then
   red "Thin client posture: NEEDS ATTENTION"
   echo "Fix: open Cursor via Launch Objoli.app → ${SSH_HOST}:${VM_AUTHORITY}"
