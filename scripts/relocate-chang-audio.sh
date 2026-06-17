@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Search Mac for audio matching Chang / Chang Man (etc.) and move to iCloud Main DL.
+# Search Mac for Mr Chang / Chang Man audio and move to iCloud Main DL.
 #
 # Usage:
 #   ./scripts/relocate-chang-audio.sh              # dry-run (default)
 #   ./scripts/relocate-chang-audio.sh --apply      # move files
-#   ./scripts/relocate-chang-audio.sh --apply --subdir "Chang Man"
+#   ./scripts/relocate-chang-audio.sh --apply --subdir "Mr Chang"
 #
 set -euo pipefail
 
@@ -15,19 +15,23 @@ source "${ROOT}/scripts/mac-lib.sh"
 require_mac
 
 APPLY=0
+LOOSE=0
 SUBDIR="${AUDIO_RELOCATE_SUBDIR:-Chang}"
-TERMS="${AUDIO_RELOCATE_TERMS:-chang chang man changman chang-man chang_man}"
 DEST="${ICLOUD_MAIN_DL:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/Downloads/Main Music DL Library}"
+LIBRARY_ROOT="${DEST%/*}"
+LIBRARY_ROOT="${LIBRARY_ROOT%/Main Music DL Library}"
+LIBRARY_ROOT="${LIBRARY_ROOT}/Downloads/Main Music DL Library"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --apply) APPLY=1; shift ;;
     --dry-run) APPLY=0; shift ;;
+    --loose) LOOSE=1; shift ;;
     --subdir) SUBDIR="${2:?}"; shift 2 ;;
     --dest) DEST="${2:?}"; shift 2 ;;
-    --terms) TERMS="${2:?}"; shift 2 ;;
     -h|--help)
       sed -n '2,8p' "$0"
+      echo "  --loose    also match bare 'chang'/'man' (not recommended)"
       exit 0
       ;;
     *) red "Unknown option: $1"; exit 1 ;;
@@ -62,16 +66,31 @@ normalize_for_match() {
   tr '[:upper:]' '[:lower:]' | tr '_-' '  ' | tr -s ' '
 }
 
-matches_terms() {
-  local hay="$1"
+# Strict: Mr Chang, Chang Man, Chang_Times playlist — not "Changes", "Same Man", "MANTRA".
+matches_chang_target() {
+  local name="$1"
   local norm
-  norm="$(printf '%s' "$hay" | normalize_for_match)"
-  for term in $TERMS; do
-    local t
-    t="$(printf '%s' "$term" | normalize_for_match)"
-    [[ -n "$t" && "$norm" == *"$t"* ]] && return 0
-  done
+  norm="$(printf '%s' "$name" | normalize_for_match)"
+
+  [[ "$norm" == *"chang times"* || "$norm" == changtimes ]] && return 0
+  [[ "$norm" == *"mr chang"* ]] && return 0
+  [[ "$norm" == *"aka mr chang"* ]] && return 0
+  [[ "$norm" == *"mda aka mr chang"* ]] && return 0
+  [[ "$norm" == *"chang man"* ]] && return 0
+  [[ "$norm" == *changman* ]] && return 0
+
+  if [[ "$LOOSE" -eq 1 ]]; then
+    [[ "$norm" == *chang* ]] && return 0
+  fi
   return 1
+}
+
+file_matches() {
+  local f="$1"
+  local base parent
+  base="$(basename "$f")"
+  parent="$(basename "$(dirname "$f")")"
+  matches_chang_target "$base" || matches_chang_target "$parent"
 }
 
 unique_dest() {
@@ -103,7 +122,7 @@ add_candidate() {
   [[ -f "$f" ]] || return 0
   should_skip_path "$f" && return 0
   is_audio_file "$f" || return 0
-  matches_terms "$(basename "$f")" || matches_terms "$(dirname "$f")" || return 0
+  file_matches "$f" || return 0
   if ((${#FOUND[@]} > 0)); then
     local existing
     for existing in "${FOUND[@]}"; do
@@ -113,26 +132,31 @@ add_candidate() {
   FOUND+=("$f")
 }
 
-# Spotlight (fast, whole home)
+ICLOUD="${HOME}/Library/Mobile Documents/com~apple~CloudDocs"
+
+# Targeted Spotlight (not bare *chang* / *man*)
 if command -v mdfind &>/dev/null; then
-  while IFS= read -r term; do
-    [[ -z "$term" ]] && continue
+  for query in \
+    'kMDItemFSName == "*Mr*Chang*"cd' \
+    'kMDItemFSName == "*Chang_Man*"cd' \
+    'kMDItemFSName == "*Chang Man*"cd' \
+    'kMDItemFSName == "*Chang_Times*"cd' \
+    'kMDItemFSName == "*MDA*Chang*"cd'; do
     while IFS= read -r hit; do
       add_candidate "$hit"
-    done < <(mdfind -onlyin "$HOME" "kMDItemFSName == '*${term}*'cd" 2>/dev/null || true)
-  done <<< "$(printf '%s\n' $TERMS)"
+    done < <(mdfind -onlyin "$HOME" "$query" 2>/dev/null || true)
+  done
 fi
 
-# Explicit folders (catches unindexed files)
 SEARCH_ROOTS=(
+  "$HOME/Downloads/Chang_Times"
   "$HOME/Downloads"
-  "$HOME/Desktop"
-  "$HOME/Documents"
+  "$HOME/DJ_INBOX"
   "$HOME/Music"
-  "$HOME/Movies"
-  "$HOME/Pulse Loop"
-  "$HOME/Pulse-Sync"
-  "$HOME/DJ_Set_App"
+  "$HOME/Desktop"
+  "${ICLOUD}/DJ_LIBRARY/Exports/Mr Chang"
+  "${ICLOUD}/DJ_LIBRARY/Exports"
+  "${ICLOUD}/Downloads/Main Music DL Library"
 )
 
 find_args=()
@@ -150,7 +174,7 @@ done
 
 echo "=== Relocate Chang audio → iCloud Main DL ==="
 echo "Destination: ${DEST}"
-echo "Search terms: ${TERMS}"
+echo "Match mode: $([[ "$LOOSE" -eq 1 ]] && echo loose || echo strict — Mr Chang / Chang Man / Chang_Times)"
 [[ "$APPLY" -eq 0 ]] && yellow "DRY RUN — pass --apply to move files"
 echo ""
 
@@ -161,7 +185,7 @@ fi
 
 {
   echo "# relocate-chang-audio $(timestamp)"
-  echo "# dest=${DEST} apply=${APPLY}"
+  echo "# dest=${DEST} apply=${APPLY} loose=${LOOSE}"
 } > "$MANIFEST"
 
 moved=0
@@ -170,7 +194,6 @@ skipped=0
 for src in "${FOUND[@]}"; do
   name="$(basename "$src")"
   target="$(unique_dest "$DEST" "$name")"
-  rel_target="${target#"$HOME"/}"
   echo "${src} → ${target}" | tee -a "$MANIFEST"
   if [[ "$APPLY" -eq 1 ]]; then
     mkdir -p "$DEST"
