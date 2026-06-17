@@ -9,7 +9,7 @@
 | Goal | Command |
 |------|---------|
 | **Thin client optimise** | `~/mac-optimise/scripts/thin-client-optimize.sh` |
-| Health snapshot | `~/mac-optimise/scripts/health-check.sh` |
+| Health snapshot | `~/mac-optimise/scripts/status.sh` |
 | Full audit (JSON report) | `~/mac-optimise/scripts/audit.sh` |
 | Preview cleanup | `~/mac-optimise/scripts/cleanup.sh --dry-run` |
 | Apply safe cleanup | `~/mac-optimise/scripts/cleanup.sh` |

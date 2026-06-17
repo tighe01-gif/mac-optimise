@@ -29,6 +29,7 @@
 | Shared library | `scripts/mac-lib.sh` | Created |
 | **Thin client optimise** | `scripts/thin-client-optimize.sh` | Created |
 | Health check | `scripts/health-check.sh` | Created |
+| Full status (one command) | `scripts/status.sh` | Created |
 | Full audit | `scripts/audit.sh` | Created |
 | Safe cleanup | `scripts/cleanup.sh` | Created |
 | Ecosystem alignment | `scripts/align-ecosystem.sh` | Created |
