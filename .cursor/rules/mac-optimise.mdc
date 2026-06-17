@@ -7,6 +7,7 @@ alwaysApply: true
 
 - All maintenance scripts run on **macOS** (`Darwin`). Use `mac-lib.sh` helpers.
 - **Safe cleanup only** — caches, brew cleanup, npm/pip caches, Xcode derived data. Never delete repos, `~/Documents`, or user media.
+- **DJ apps protected** — rekordbox, DJ.Studio, MIXO, Mixed In Key paths in `config/dj-protected-paths.env`; never move/delete in audio scripts.
 - Objoli authority: VM `/workspace/objoli` via Remote-SSH. Mac `~/objoli` is mirror-only.
 - Write audit/health output to `output/` — do not commit generated JSON/logs.
 - Prefer `--dry-run` before destructive operations. Document new artifacts in `ARTIFACTS.md`.

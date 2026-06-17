@@ -63,6 +63,7 @@ is_authorized_path() {
 should_skip_path() {
   local p="$1"
   is_authorized_path "$p" && return 0
+  is_dj_protected_path "$p" && return 0
   [[ "$p" == *"/node_modules/"* ]] && return 0
   [[ "$p" == *"/.git/"* ]] && return 0
   [[ "$p" == *"/.Trash/"* ]] && return 0
@@ -115,6 +116,12 @@ echo "=== Local audio audit (thin client) ==="
 echo "Authorized (untouched):"
 echo "  ${LIBRARY}"
 echo "  ${DJ_LIB}"
+echo "DJ protected (rekordbox, DJ.Studio, MIXO, Mixed In Key):"
+if [[ -n "${DJ_PROTECT_ROOTS:-}" ]]; then
+  for root in "${DJ_PROTECT_ROOTS[@]}"; do
+    [[ -n "$root" ]] && echo "  ${root}"
+  done
+fi
 echo "Import target: ${DEST}"
 [[ "$APPLY" -eq 0 ]] && yellow "AUDIT ONLY — pass --apply to move files to iCloud"
 echo ""

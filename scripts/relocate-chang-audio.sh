@@ -51,6 +51,7 @@ should_skip_path() {
   local p="$1"
   [[ "$p" == "$DEST"* ]] && return 0
   [[ "$p" == "${LIBRARY}/"* ]] && return 0
+  is_dj_protected_path "$p" && return 0
   [[ "$p" == *"/node_modules/"* ]] && return 0
   [[ "$p" == *"/.git/"* ]] && return 0
   [[ "$p" == *"/Library/Application Support/Cursor/"* ]] && return 0

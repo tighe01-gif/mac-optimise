@@ -18,6 +18,7 @@
 | Artifact | Path | Status |
 |----------|------|--------|
 | Default thresholds | `config/defaults.env` | Created |
+| DJ protected paths | `config/dj-protected-paths.env` | Created |
 | Cursor rule | `.cursor/rules/mac-optimise.mdc` | Created |
 | Git ignore | `.gitignore` | Created |
 

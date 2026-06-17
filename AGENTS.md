@@ -21,6 +21,7 @@
 
 - Scripts target **Darwin only** — guard with `uname -s` checks.
 - Never delete user data, git repos, or `~/Library` outside documented cache paths.
+- **DJ apps are protected** — never move or delete rekordbox, DJ.Studio, MIXO, or Mixed In Key libraries. Paths in `config/dj-protected-paths.env` are skipped by `local-audio-to-icloud.sh` and `relocate-chang-audio.sh`. `cleanup.sh` only touches dev caches (never DJ media).
 - Objoli authority is `/workspace/objoli` on VM — Mac `~/objoli` is a read-only mirror.
 - Generated reports go to `output/` — never commit `output/` except `.gitkeep`.
 
