@@ -3,10 +3,12 @@ output/audit/*
 output/health/*
 output/relocate/*
 output/thin-client/*
+output/local-audio/*
 !output/audit/.gitkeep
 !output/health/.gitkeep
 !output/relocate/.gitkeep
 !output/thin-client/.gitkeep
+!output/local-audio/.gitkeep
 
 # macOS
 .DS_Store

@@ -137,7 +137,21 @@ for app in "Launch Objoli.app" "Launch Platform.app"; do
 done
 echo ""
 
-# --- 4. Local product clients (allowed on thin client) ---
+# --- 4. Local audio (thin client: iCloud only) ---
+echo "--- Local audio ---"
+if "${ROOT}/scripts/local-audio-to-icloud.sh"; then
+  pass "no audio stored outside iCloud"
+else
+  local_audio_rc=$?
+  if [[ "$local_audio_rc" -eq 2 ]]; then
+    warn "local audio found outside iCloud — run: ./scripts/local-audio-to-icloud.sh"
+  else
+    warn "local audio audit failed"
+  fi
+fi
+echo ""
+
+# --- 5. Local product clients (allowed on thin client) ---
 echo "--- Local clients (Pulse) ---"
 while IFS='|' read -r label dir; do
   [[ -d "${dir}/.git" ]] && pass "${label} present" || warn "${label} not found at ${dir}"
@@ -153,7 +167,7 @@ else
 fi
 echo ""
 
-# --- 5. Optimise (cleanup + align) ---
+# --- 6. Optimise (cleanup + align) ---
 if [[ "$MODE" == "check" ]]; then
   yellow "Check-only — skipping cleanup and align"
 else
