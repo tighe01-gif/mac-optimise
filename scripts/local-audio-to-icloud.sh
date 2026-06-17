@@ -84,8 +84,10 @@ add_file() {
   [[ -f "$f" ]] || return 0
   should_skip_path "$f" && return 0
   is_audio "$f" || return 0
-  local existing
-  for existing in "${FOUND[@]}"; do [[ "$existing" == "$f" ]] && return 0; done
+  if ((${#FOUND[@]} > 0)); then
+    local existing
+    for existing in "${FOUND[@]}"; do [[ "$existing" == "$f" ]] && return 0; done
+  fi
   FOUND+=("$f")
   TOTAL_MB=$((TOTAL_MB + $(dir_size_mb "$f")))
 }

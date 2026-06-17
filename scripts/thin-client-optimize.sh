@@ -144,7 +144,7 @@ if "${ROOT}/scripts/local-audio-to-icloud.sh"; then
 else
   local_audio_rc=$?
   if [[ "$local_audio_rc" -eq 2 ]]; then
-    warn "local audio found outside iCloud — run: ./scripts/local-audio-to-icloud.sh"
+    warn "local audio found outside iCloud — run: ./scripts/local-audio-to-icloud.sh then --apply"
   else
     warn "local audio audit failed"
   fi
