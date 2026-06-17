@@ -1,8 +1,10 @@
 # Generated reports
 output/audit/*
 output/health/*
+output/relocate/*
 !output/audit/.gitkeep
 !output/health/.gitkeep
+!output/relocate/.gitkeep
 
 # macOS
 .DS_Store

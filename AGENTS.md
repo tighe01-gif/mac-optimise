@@ -14,6 +14,7 @@
 | Apply safe cleanup | `~/mac-optimise/scripts/cleanup.sh` |
 | Fix Cursor device-sync drift | `~/mac-optimise/scripts/align-ecosystem.sh` |
 | Daily maintenance (launchd) | `~/mac-optimise/scripts/install-maintain-launchd.sh` |
+| Find + move Chang audio → iCloud DL | `~/mac-optimise/scripts/relocate-chang-audio.sh` then `--apply` |
 
 ## Platform rules
 

@@ -23,6 +23,7 @@ cd ~/mac-optimise
 ./scripts/cleanup.sh --dry-run     # preview safe cleanups
 ./scripts/cleanup.sh               # apply safe cleanups
 ./scripts/align-ecosystem.sh       # fix Cursor device-sync drift
+./scripts/relocate-chang-audio.sh  # find Chang audio → iCloud Main DL (dry-run)
 ```
 
 ## Scheduled maintenance
