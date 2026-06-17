@@ -145,9 +145,9 @@ if "${ROOT}/scripts/local-audio-to-icloud.sh"; then
 else
   local_audio_rc=$?
   if [[ "$local_audio_rc" -eq 2 ]]; then
-    n="$(ls -1 "${ROOT}/output/local-audio/"*.txt 2>/dev/null | tail -1)"
+    n="${ROOT}/output/local-audio/latest.txt"
     count=""
-    if [[ -n "$n" && -f "$n" ]]; then
+    if [[ -f "$n" ]]; then
       count="$(grep -cve '^#' "$n" 2>/dev/null || echo 0)"
     fi
     if [[ -n "$count" && "$count" -gt 0 ]]; then

@@ -40,6 +40,7 @@ AUDIO_EXTS="mp3 m4a m4p flac wav aiff aif ogg opus wma aac"
 
 mkdir -p "${ROOT}/output/local-audio"
 MANIFEST="${ROOT}/output/local-audio/$(date_slug).txt"
+LATEST="${ROOT}/output/local-audio/latest.txt"
 
 is_audio() {
   local ext="${1##*.}"
@@ -140,6 +141,7 @@ done
 
 if [[ ${#FOUND[@]} -eq 0 ]]; then
   green "No local audio outside iCloud. Thin client OK."
+  cp "$MANIFEST" "$LATEST"
   echo "Manifest: ${MANIFEST}"
   exit 0
 fi
@@ -193,6 +195,9 @@ else
   echo "Moved: ${moved}  Failed: ${failed}"
 fi
 echo "Manifest: ${MANIFEST}"
+cp "$MANIFEST" "$LATEST"
+echo "Review list: grep -v '^#' '${LATEST}' | less"
+echo "Count:       grep -cv '^#' '${LATEST}' || true"
 echo "=== done ==="
 
 if [[ "$APPLY" -eq 0 && ${#FOUND[@]} -gt 0 ]]; then
