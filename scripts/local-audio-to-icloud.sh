@@ -48,10 +48,15 @@ is_audio() {
 }
 
 # iCloud-authoritative paths — thin client keeps audio here only.
+# macOS exposes iCloud under Mobile Documents and (Ventura+) Library/CloudStorage.
 is_authorized_path() {
   local p="$1"
-  [[ "$p" == "${LIBRARY}"* ]] && return 0
-  [[ "$p" == "${DJ_LIB}"* ]] && return 0
+  case "$p" in
+    "${LIBRARY}"*) return 0 ;;
+    "${DJ_LIB}"*) return 0 ;;
+    *"/com~apple~CloudDocs/Downloads/Main Music DL Library"*) return 0 ;;
+    *"/com~apple~CloudDocs/DJ_LIBRARY"*) return 0 ;;
+  esac
   return 1
 }
 
