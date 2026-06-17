@@ -26,6 +26,7 @@
 | Artifact | Path | Status |
 |----------|------|--------|
 | Shared library | `scripts/mac-lib.sh` | Created |
+| **Thin client optimise** | `scripts/thin-client-optimize.sh` | Created |
 | Health check | `scripts/health-check.sh` | Created |
 | Full audit | `scripts/audit.sh` | Created |
 | Safe cleanup | `scripts/cleanup.sh` | Created |
@@ -40,6 +41,7 @@
 |----------|------|--------|
 | Audit reports | `output/audit/*.json` | Created on first `audit.sh` run |
 | Health logs | `output/health/*.log` | Created on first `health-check.sh` run |
+| Thin client reports | `output/thin-client/latest.json` | Created by `thin-client-optimize.sh` |
 | Maintain log | `/tmp/mac-optimise-maintain.log` | Created when launchd runs |
 
 ## External references (not in this repo)

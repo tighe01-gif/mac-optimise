@@ -8,7 +8,8 @@
 
 | Goal | Command |
 |------|---------|
-| **Health snapshot** | `~/mac-optimise/scripts/health-check.sh` |
+| **Thin client optimise** | `~/mac-optimise/scripts/thin-client-optimize.sh` |
+| Health snapshot | `~/mac-optimise/scripts/health-check.sh` |
 | Full audit (JSON report) | `~/mac-optimise/scripts/audit.sh` |
 | Preview cleanup | `~/mac-optimise/scripts/cleanup.sh --dry-run` |
 | Apply safe cleanup | `~/mac-optimise/scripts/cleanup.sh` |

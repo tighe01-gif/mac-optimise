@@ -18,6 +18,8 @@ VM authority: `/workspace/mac-optimise` (same repo). Mac mirror rsyncs to `/prod
 
 ```bash
 cd ~/mac-optimise
+./scripts/thin-client-optimize.sh        # full: verify thin client + cleanup + align
+./scripts/thin-client-optimize.sh --check   # verify only, no changes
 ./scripts/health-check.sh          # read-only status
 ./scripts/audit.sh                 # full audit → output/audit/latest.json
 ./scripts/cleanup.sh --dry-run     # preview safe cleanups

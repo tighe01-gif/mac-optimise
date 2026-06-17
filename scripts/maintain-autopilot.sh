@@ -11,7 +11,6 @@ exec >>"$LOG" 2>&1
 
 echo "=== maintain $(timestamp) ==="
 
-"$ROOT/scripts/health-check.sh" || true
-"$ROOT/scripts/cleanup.sh" || true
+"${ROOT}/scripts/thin-client-optimize.sh" || true
 
 echo "=== done ==="
