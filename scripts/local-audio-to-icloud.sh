@@ -146,9 +146,19 @@ fi
 
 yellow "Found ${#FOUND[@]} local audio file(s) (~${TOTAL_MB} MB)"
 echo ""
+echo "By location:"
+for root in "${SCAN_ROOTS[@]}"; do
+  [[ -d "$root" ]] || continue
+  n=0
+  for f in "${FOUND[@]}"; do [[ "$f" == "${root}"* ]] && n=$((n + 1)); done
+  [[ "$n" -gt 0 ]] && echo "  ${n}  ${root}"
+done
+echo ""
 
 moved=0
 failed=0
+shown=0
+max_show=25
 
 for src in "${FOUND[@]}"; do
   name="$(basename "$src")"
@@ -164,9 +174,17 @@ for src in "${FOUND[@]}"; do
       failed=$((failed + 1))
     fi
   else
-    echo "${src}" | tee -a "$MANIFEST"
+    echo "${src}" >> "$MANIFEST"
+    if [[ "$shown" -lt "$max_show" ]]; then
+      echo "${src}"
+      shown=$((shown + 1))
+    fi
   fi
 done
+
+if [[ "$APPLY" -eq 0 && ${#FOUND[@]} -gt "$max_show" ]]; then
+  yellow "... and $((${#FOUND[@]} - max_show)) more in manifest"
+fi
 
 echo ""
 if [[ "$APPLY" -eq 0 ]]; then
