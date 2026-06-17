@@ -151,9 +151,9 @@ else
       count="$(grep -cve '^#' "$n" 2>/dev/null || echo 0)"
     fi
     if [[ -n "$count" && "$count" -gt 0 ]]; then
-      warn "local audio: ${count} file(s) outside iCloud (DJ apps excluded) — run: ./scripts/local-audio-to-icloud.sh --apply"
+      warn "recent local audio: ${count} file(s) from last ${AUDIO_RECENT_DAYS:-5} days — run: ./scripts/local-audio-to-icloud.sh --apply"
     else
-      warn "local audio found outside iCloud (DJ apps excluded) — run: ./scripts/local-audio-to-icloud.sh --apply"
+      warn "recent local audio found (last ${AUDIO_RECENT_DAYS:-5} days) — run: ./scripts/local-audio-to-icloud.sh --apply"
     fi
   else
     warn "local audio audit failed"

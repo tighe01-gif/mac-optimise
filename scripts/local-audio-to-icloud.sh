@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-# Find audio stored outside iCloud (thin client: no local music hoarding).
+# Move recent local audio downloads into iCloud (thin client).
 #
-# Authorized (left alone): iCloud Drive — Main Music DL Library + DJ_LIBRARY.
-# Everything else under ~/ that matches audio extensions is "local".
+# Default: audio modified in the last 5 days under Downloads/Desktop/Documents/DJ_INBOX.
+# DJ apps (rekordbox, DJ.Studio, MIXO, Mixed In Key) are never touched.
 #
 # Usage:
-#   ./scripts/local-audio-to-icloud.sh           # audit only
-#   ./scripts/local-audio-to-icloud.sh --apply   # move → Main DL/_local-import/YYYY-MM-DD/
+#   ./scripts/local-audio-to-icloud.sh              # audit recent downloads
+#   ./scripts/local-audio-to-icloud.sh --apply      # move → Main DL/_local-import/YYYY-MM-DD/
+#   ./scripts/local-audio-to-icloud.sh --days 7     # custom window
+#   ./scripts/local-audio-to-icloud.sh --all        # full scan (slow — entire Music/CloudStorage)
 #
 set -euo pipefail
 
@@ -17,15 +19,27 @@ source "${ROOT}/scripts/mac-lib.sh"
 require_mac
 
 APPLY=0
+FULL_SCAN=0
+DAYS="${AUDIO_RECENT_DAYS:-5}"
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --apply) APPLY=1; shift ;;
     --dry-run) APPLY=0; shift ;;
+    --days)
+      [[ $# -ge 2 ]] || { red "--days requires a number"; exit 1; }
+      DAYS="$2"
+      shift 2
+      ;;
+    --all) FULL_SCAN=1; DAYS=0; shift ;;
     -h|--help)
-      sed -n '2,10p' "$0"
+      sed -n '2,12p' "$0"
       exit 0
       ;;
     \#*) shift ;; # pasted comment token (e.g. from copied instructions)
+    # prose from copied multi-line instructions (zsh sometimes passes these as args)
+    quick|audit|move|only|these|recent|tracks|should|finish|seconds|local|audio|downloads|days)
+      shift ;;
     *) red "Unknown option: $1"; exit 1 ;;
   esac
 done
@@ -49,7 +63,6 @@ is_audio() {
 }
 
 # iCloud-authoritative paths — thin client keeps audio here only.
-# macOS exposes iCloud under Mobile Documents and (Ventura+) Library/CloudStorage.
 is_authorized_path() {
   local p="$1"
   case "$p" in
@@ -76,12 +89,20 @@ should_skip_path() {
 }
 
 unique_dest() {
-  local base="$1" name="$2" target="${base}/${name}"
-  if [[ ! -e "$target" ]]; then printf '%s\n' "$target"; return; fi
+  local dest_dir="${1-}" filename="${2-}"
+  [[ -n "$dest_dir" && -n "$filename" ]] || return 1
+  local target="${dest_dir}/${filename}"
+  if [[ ! -e "$target" ]]; then printf '%s\n' "$target"; return 0; fi
   local stem ext n=1
-  if [[ "$name" == *.* ]]; then stem="${name%.*}"; ext=".${name##*.}"; else stem="$name"; ext=""; fi
-  while [[ -e "${base}/${stem} (${n})${ext}" ]]; do n=$((n + 1)); done
-  printf '%s\n' "${base}/${stem} (${n})${ext}"
+  if [[ "$filename" == *.* ]]; then
+    stem="${filename%.*}"
+    ext=".${filename##*.}"
+  else
+    stem="$filename"
+    ext=""
+  fi
+  while [[ -e "${dest_dir}/${stem} (${n})${ext}" ]]; do n=$((n + 1)); done
+  printf '%s\n' "${dest_dir}/${stem} (${n})${ext}"
 }
 
 declare -a FOUND=()
@@ -89,7 +110,7 @@ TOTAL_MB=0
 
 add_file() {
   local f="$1"
-  [[ -f "$f" ]] || return 0
+  [[ -n "$f" && -f "$f" ]] || return 0
   should_skip_path "$f" && return 0
   is_audio "$f" || return 0
   if ((${#FOUND[@]} > 0)); then
@@ -104,43 +125,61 @@ find_args=()
 for ext in $AUDIO_EXTS; do find_args+=( -iname "*.${ext}" -o ); done
 unset 'find_args[${#find_args[@]}-1]'
 
-SCAN_ROOTS=(
-  "$HOME/Downloads"
-  "$HOME/Desktop"
-  "$HOME/Documents"
-  "$HOME/DJ_INBOX"
-  "$HOME/Music"
-  "${HOME}/Library/CloudStorage"
-)
+if [[ "$FULL_SCAN" -eq 1 ]]; then
+  SCAN_ROOTS=(
+    "$HOME/Downloads"
+    "$HOME/Desktop"
+    "$HOME/Documents"
+    "$HOME/DJ_INBOX"
+    "$HOME/Music"
+    "${HOME}/Library/CloudStorage"
+  )
+else
+  SCAN_ROOTS=(
+    "$HOME/Downloads"
+    "$HOME/Desktop"
+    "$HOME/Documents"
+    "$HOME/DJ_INBOX"
+  )
+fi
 
-echo "=== Local audio audit (thin client) ==="
+if [[ "$FULL_SCAN" -eq 1 ]]; then
+  echo "=== Full local audio audit (thin client) ==="
+else
+  echo "=== Recent local audio → iCloud (last ${DAYS} days) ==="
+fi
 echo "Authorized (untouched):"
 echo "  ${LIBRARY}"
 echo "  ${DJ_LIB}"
-echo "DJ protected (rekordbox, DJ.Studio, MIXO, Mixed In Key):"
-if [[ -n "${DJ_PROTECT_ROOTS:-}" ]]; then
-  for root in "${DJ_PROTECT_ROOTS[@]}"; do
-    [[ -n "$root" ]] && echo "  ${root}"
-  done
-fi
+echo "DJ protected (rekordbox, DJ.Studio, MIXO, Mixed In Key): skipped"
 echo "Import target: ${DEST}"
 [[ "$APPLY" -eq 0 ]] && yellow "AUDIT ONLY — pass --apply to move files to iCloud"
 echo ""
 
 for root in "${SCAN_ROOTS[@]}"; do
   [[ -d "$root" ]] || continue
-  while IFS= read -r f; do add_file "$f"; done < <(
-    find "$root" -type f \( "${find_args[@]}" \) 2>/dev/null || true
-  )
+  if [[ "$DAYS" -gt 0 ]]; then
+    while IFS= read -r f; do add_file "$f"; done < <(
+      find "$root" -type f -mtime "-${DAYS}" \( "${find_args[@]}" \) 2>/dev/null || true
+    )
+  else
+    while IFS= read -r f; do add_file "$f"; done < <(
+      find "$root" -type f \( "${find_args[@]}" \) 2>/dev/null || true
+    )
+  fi
 done
 
 {
   echo "# local-audio-to-icloud $(timestamp)"
-  echo "# apply=${APPLY} dest=${DEST}"
+  echo "# apply=${APPLY} days=${DAYS} full_scan=${FULL_SCAN} dest=${DEST}"
 } > "$MANIFEST"
 
 if [[ ${#FOUND[@]} -eq 0 ]]; then
-  green "No local audio outside iCloud. Thin client OK."
+  if [[ "$FULL_SCAN" -eq 1 ]]; then
+    green "No local audio outside iCloud. Thin client OK."
+  else
+    green "No recent local audio (last ${DAYS} days). Thin client OK."
+  fi
   cp "$MANIFEST" "$LATEST"
   echo "Manifest: ${MANIFEST}"
   exit 0
@@ -165,7 +204,11 @@ max_show=25
 for src in "${FOUND[@]}"; do
   name="$(basename "$src")"
   if [[ "$APPLY" -eq 1 ]]; then
-    target="$(unique_dest "$DEST" "$name")"
+    if ! target="$(unique_dest "$DEST" "$name")"; then
+      red "  SKIP (bad destination): ${src}"
+      failed=$((failed + 1))
+      continue
+    fi
     mkdir -p "$DEST"
     echo "${src} → ${target}" | tee -a "$MANIFEST"
     if mv "$src" "$target"; then
@@ -190,7 +233,7 @@ fi
 
 echo ""
 if [[ "$APPLY" -eq 0 ]]; then
-  yellow "Re-run with --apply to move all to iCloud."
+  yellow "Re-run with --apply to move these to iCloud."
 else
   echo "Moved: ${moved}  Failed: ${failed}"
 fi

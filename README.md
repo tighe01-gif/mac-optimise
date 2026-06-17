@@ -19,8 +19,8 @@ VM authority: `/workspace/mac-optimise` (same repo). Mac mirror rsyncs to `/prod
 ```bash
 cd ~/mac-optimise
 ./scripts/thin-client-optimize.sh        # full: verify thin client + cleanup + align
-./scripts/local-audio-to-icloud.sh     # audit local mp3/audio (outside iCloud)
-./scripts/local-audio-to-icloud.sh --apply   # move to iCloud Main DL
+./scripts/local-audio-to-icloud.sh              # audit recent downloads (last 5 days)
+./scripts/local-audio-to-icloud.sh --apply    # move recent downloads to iCloud Main DL
 ./scripts/health-check.sh          # read-only status
 ./scripts/audit.sh                 # full audit → output/audit/latest.json
 ./scripts/cleanup.sh --dry-run     # preview safe cleanups
