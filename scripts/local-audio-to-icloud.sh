@@ -25,6 +25,7 @@ while [[ $# -gt 0 ]]; do
       sed -n '2,10p' "$0"
       exit 0
       ;;
+    \#*) shift ;; # pasted comment token (e.g. from copied instructions)
     *) red "Unknown option: $1"; exit 1 ;;
   esac
 done
