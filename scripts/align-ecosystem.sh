@@ -23,9 +23,7 @@ else
 fi
 
 echo ""
-for name path in \
-  "Pulse-Sync" "${PULSE_SYNC_PATH:-$HOME/Pulse-Sync}" \
-  "mac-optimise" "$ROOT"; do
+while IFS='|' read -r name path; do
   if [[ -d "${path}/.git" ]]; then
     branch="$(git -C "$path" rev-parse --abbrev-ref HEAD 2>/dev/null)"
     if [[ -n "$(git -C "$path" status --porcelain 2>/dev/null)" ]]; then
@@ -34,7 +32,10 @@ for name path in \
       green "${name}: clean on ${branch}"
     fi
   fi
-done
+done <<EOF
+Pulse-Sync|${PULSE_SYNC_PATH:-$HOME/Pulse-Sync}
+mac-optimise|${ROOT}
+EOF
 
 echo ""
 echo "Next: close Cursor tabs with unsaved dots (●), reopen via Launch Objoli.app"

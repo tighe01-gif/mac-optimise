@@ -16,7 +16,7 @@ require_mac
 
 APPLY=0
 SUBDIR="${AUDIO_RELOCATE_SUBDIR:-Chang}"
-TERMS="${AUDIO_RELOCATE_TERMS:-chang changman chang-man chang_man}"
+TERMS="${AUDIO_RELOCATE_TERMS:-chang chang man changman chang-man chang_man}"
 DEST="${ICLOUD_MAIN_DL:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/Downloads/Main Music DL Library}"
 
 while [[ $# -gt 0 ]]; do
@@ -104,10 +104,12 @@ add_candidate() {
   should_skip_path "$f" && return 0
   is_audio_file "$f" || return 0
   matches_terms "$(basename "$f")" || matches_terms "$(dirname "$f")" || return 0
-  local existing
-  for existing in "${FOUND[@]}"; do
-    [[ "$existing" == "$f" ]] && return 0
-  done
+  if ((${#FOUND[@]} > 0)); then
+    local existing
+    for existing in "${FOUND[@]}"; do
+      [[ "$existing" == "$f" ]] && return 0
+    done
+  fi
   FOUND+=("$f")
 }
 
