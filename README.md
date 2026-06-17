@@ -4,6 +4,16 @@ Mac development machine health, cleanup, and alignment for the Objoli / Pulse ec
 
 Runs on **macOS only**. Clone to `~/mac-optimise` on your Mac (or open via Cursor Remote-SSH at `/workspace/mac-optimise` on the VM for editing).
 
+## Mac setup
+
+```bash
+git clone git@github.com:tighe01-gif/mac-optimise.git ~/mac-optimise
+cd ~/mac-optimise
+./scripts/health-check.sh
+```
+
+VM authority: `/workspace/mac-optimise` (same repo). Mac mirror rsyncs to `/products/mac-optimise` via `objoli/infra/scripts/sync_all_cursor_projects_to_vm.sh`.
+
 ## Quick start
 
 ```bash

@@ -52,7 +52,7 @@
 
 ## Search results (2026-06-17)
 
-- No prior `mac-optimise` repo on GitHub (`tighe01-gif/mac-optimise` — not found).
+- GitHub repo: https://github.com/tighe01-gif/mac-optimise (`main`)
 - No existing files in `/workspace/mac-optimise` before bootstrap.
 - Registered in `objoli/platform/config/projects.json` (rsync → `/products/mac-optimise`).
 - Mac rsync manifest: `objoli/infra/cursor-projects.txt` → `~/mac-optimise`.
