@@ -24,21 +24,19 @@ fi
 
 echo ""
 echo "Cache sizes:"
-for label path in \
-  "Cursor" "${HOME}/Library/Application Support/Cursor" \
-  "npm" "${HOME}/.npm" \
-  "Homebrew" "$(brew --cache 2>/dev/null || echo /dev/null)" \
-  "Xcode DerivedData" "${HOME}/Library/Developer/Xcode/DerivedData"; do
+while IFS='|' read -r label path; do
   mb="$(dir_size_mb "$path")"
   echo "  ${label}: ${mb} MB"
-done
+done <<EOF
+Cursor|${HOME}/Library/Application Support/Cursor
+npm|${HOME}/.npm
+Homebrew|$(brew --cache 2>/dev/null || echo /dev/null)
+Xcode DerivedData|${HOME}/Library/Developer/Xcode/DerivedData
+EOF
 
 echo ""
 echo "Ecosystem repos:"
-for name path in \
-  "objoli" "${OBJOLI_MAC_PATH:-$HOME/objoli}" \
-  "Pulse-Sync" "${PULSE_SYNC_PATH:-$HOME/Pulse-Sync}" \
-  "Pulse Loop" "${PULSE_LOOP_PATH:-$HOME/Pulse Loop}"; do
+while IFS='|' read -r name path; do
   if [[ -d "${path}/.git" ]]; then
     branch="$(git -C "$path" rev-parse --abbrev-ref HEAD 2>/dev/null || echo "?")"
     short="$(git -C "$path" rev-parse --short HEAD 2>/dev/null || echo "?")"
@@ -48,7 +46,11 @@ for name path in \
   else
     echo "  ${name}: not found"
   fi
-done
+done <<EOF
+objoli|${OBJOLI_MAC_PATH:-$HOME/objoli}
+Pulse-Sync|${PULSE_SYNC_PATH:-$HOME/Pulse-Sync}
+Pulse Loop|${PULSE_LOOP_PATH:-$HOME/Pulse Loop}
+EOF
 
 echo ""
 echo "Launchd maintenance:"
