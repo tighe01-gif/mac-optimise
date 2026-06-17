@@ -1,0 +1,14 @@
+# Generated reports
+output/audit/*
+output/health/*
+!output/audit/.gitkeep
+!output/health/.gitkeep
+
+# macOS
+.DS_Store
+
+# Local overrides
+config/local.env
+
+# Logs
+*.log
