@@ -7,6 +7,7 @@
 # Usage:
 #   ./scripts/thin-client-optimize.sh           # verify + cleanup + align
 #   ./scripts/thin-client-optimize.sh --check   # verify only (no changes)
+#   ./scripts/thin-client-optimize.sh --check-only  # alias for --check
 #   ./scripts/thin-client-optimize.sh --dry-run # verify + preview cleanup
 #
 set -euo pipefail
@@ -20,7 +21,7 @@ require_mac
 MODE=run
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --check) MODE=check; shift ;;
+    --check|--check-only) MODE=check; shift ;;
     --dry-run) MODE=dry-run; shift ;;
     --help|-h)
       sed -n '2,12p' "$0"
