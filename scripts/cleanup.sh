@@ -62,19 +62,12 @@ else
   green "Pruned /tmp files older than ${MAX_AGE} days"
 fi
 
-# Cursor GPUCache / Code Cache (safe browser caches)
-for sub in "GPUCache" "Code Cache" "CachedData"; do
-  cache="${HOME}/Library/Application Support/Cursor/${sub}"
-  if [[ -d "$cache" ]]; then
-    mb="$(dir_size_mb "$cache")"
-    if [[ "$DRY_RUN" -eq 1 ]]; then
-      yellow "[dry-run] would clear Cursor ${sub} (${mb} MB)"
-    else
-      rm -rf "${cache:?}"/*
-      green "Cleared Cursor ${sub} (${mb} MB)"
-    fi
-  fi
-done
+# Cursor — logs, browser caches, and optional state.vscdb blob prune
+if [[ "${CURSOR_AUTO_CLEAR:-1}" == "1" ]]; then
+  cursor_args=()
+  [[ "$DRY_RUN" -eq 1 ]] && cursor_args+=(--dry-run)
+  "${ROOT}/scripts/cleanup-cursor.sh" "${cursor_args[@]}"
+fi
 
 echo ""
 echo "=== done ==="

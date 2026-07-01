@@ -13,6 +13,7 @@
 | Full audit (JSON report) | `~/mac-optimise/scripts/audit.sh` |
 | Preview cleanup | `~/mac-optimise/scripts/cleanup.sh --dry-run` |
 | Apply safe cleanup | `~/mac-optimise/scripts/cleanup.sh` |
+| Cursor auto-clear | `~/mac-optimise/scripts/cleanup-cursor.sh` |
 | Fix Cursor device-sync drift | `~/mac-optimise/scripts/align-ecosystem.sh` |
 | Daily maintenance (launchd) | `~/mac-optimise/scripts/install-maintain-launchd.sh` |
 | Find + move Chang audio → iCloud DL | `~/mac-optimise/scripts/relocate-chang-audio.sh` then `--apply` |

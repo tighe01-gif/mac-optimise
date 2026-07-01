@@ -32,6 +32,7 @@
 | Full status (one command) | `scripts/status.sh` | Created |
 | Full audit | `scripts/audit.sh` | Created |
 | Safe cleanup | `scripts/cleanup.sh` | Created |
+| Cursor auto-clear | `scripts/cleanup-cursor.sh` | Created |
 | Ecosystem alignment | `scripts/align-ecosystem.sh` | Created |
 | Install launchd | `scripts/install-maintain-launchd.sh` | Created |
 | Disable launchd | `scripts/disable-maintain-launchd.sh` | Created |
